@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="dark" />
+<title>triple</title>
+<link rel="stylesheet" href="/assets/style.css" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b0d12'/%3E%3Cpath d='M16 6l9 17H7z' fill='%237c9cff'/%3E%3C/svg%3E" />
+</head>
+<body>
+
+<div id="joinScreen" class="join-screen">
+  <form id="joinForm" class="join-card" autocomplete="off">
+    <div class="brand brand-lg"><span class="logo">&#9651;</span> triple</div>
+    <p class="join-title" id="joinTitle">Join the pairing session</p>
+    <p class="join-sub" id="joinBlurb">Peer-to-peer screen sharing, shared code and annotation. No account, no install.</p>
+    <label class="field">
+      <span>Your name</span>
+      <input id="joinName" name="name" maxlength="40" required autocomplete="nickname" placeholder="Ada" />
+    </label>
+    <button class="btn primary wide" type="submit">Join session</button>
+    <p class="fineprint" id="joinFine">The session lives only while the host's process runs.</p>
+    <p class="join-error" id="joinError" hidden></p>
+  </form>
+</div>
+
+<div id="app" class="app" hidden>
+  <header class="topbar">
+    <div class="brand"><span class="logo">&#9651;</span> triple</div>
+    <div class="conn" id="connStatus"><span class="dot"></span><span class="conn-text">connecting</span></div>
+    <div class="people-strip" id="peopleStrip"></div>
+    <div class="top-actions">
+      <button id="inviteBtn" class="btn ghost sm" hidden>Copy invite link</button>
+      <button id="leaveBtn" class="btn ghost sm">Leave</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="stage" id="stage">
+      <div class="stage-empty" id="stageEmpty">
+        <div class="stage-empty-icon">&#9651;</div>
+        <p id="stageEmptyTitle">No one is presenting</p>
+        <p class="muted" id="stageEmptyHint">The presenter shares their screen and it appears here.</p>
+      </div>
+      <video id="screenVideo" class="screen-video" autoplay playsinline hidden></video>
+      <canvas id="annotationCanvas" class="annotation"></canvas>
+      <div id="reactionLayer" class="reaction-layer"></div>
+      <div id="cursorLayer" class="cursor-layer"></div>
+      <div id="stageBadges" class="stage-badges"></div>
+      <div class="self-view" id="selfWrap" hidden>
+        <video id="selfVideo" autoplay playsinline muted></video>
+        <span class="self-label" id="selfLabel">you</span>
+      </div>
+      <div class="control-banner" id="controlBanner" hidden>
+        <span id="controlBannerText">View only</span>
+        <button id="controlRequestBtn" class="btn tiny">Request control</button>
+      </div>
+      <div class="toasts" id="toasts"></div>
+      <div class="clipboard-toast" id="clipboardToast" hidden>
+        <div class="clipboard-head">
+          <strong id="clipboardFrom">Clipboard</strong>
+          <button class="icon-btn" id="clipboardClose" aria-label="Dismiss">&#215;</button>
+        </div>
+        <pre id="clipboardPreview" class="clipboard-preview"></pre>
+        <button class="btn tiny" id="clipboardCopy">Copy to clipboard</button>
+      </div>
+      <div class="filmstrip" id="filmstrip"></div>
+    </section>
+
+    <aside class="sidebar">
+      <nav class="tabs" role="tablist">
+        <button class="tab active" data-tab="code" role="tab">Code</button>
+        <button class="tab" data-tab="chat" role="tab">Chat</button>
+        <button class="tab" data-tab="people" role="tab">People</button>
+      </nav>
+
+      <section class="tabpane active" id="tab-code">
+        <div class="pane-head">
+          <span class="pane-title">Shared scratchpad</span>
+          <span class="muted" id="codeStatus"></span>
+          <div class="pane-actions">
+            <button class="btn tiny ghost" id="codeOpen">Open file</button>
+            <button class="btn tiny ghost" id="codeCopy">Copy</button>
+            <button class="btn tiny ghost" id="codeDownload">Save</button>
+          </div>
+        </div>
+        <input type="file" id="codeFile" hidden />
+        <textarea id="codeArea" class="code-area" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="Write or paste code here. Everyone with control edits the same document."></textarea>
+      </section>
+
+      <section class="tabpane" id="tab-chat">
+        <div class="chat-log" id="chatLog"></div>
+        <form class="chat-form" id="chatForm">
+          <input id="chatInput" maxlength="2000" placeholder="Message the session" autocomplete="off" />
+          <button class="btn sm" type="submit">Send</button>
+        </form>
+      </section>
+
+      <section class="tabpane" id="tab-people">
+        <div class="people-list" id="peopleList"></div>
+        <div class="host-controls" id="hostControls" hidden>
+          <label class="switch-row">
+            <input type="checkbox" id="policyEveryone" />
+            <span>Everyone can edit code</span>
+          </label>
+          <p class="hint">Control is limited to this session: the shared scratchpad and annotation layer. Triple never injects input into your desktop.</p>
+        </div>
+      </section>
+    </aside>
+  </main>
+
+  <footer class="toolbar">
+    <div class="group">
+      <button id="shareBtn" class="btn">Share screen</button>
+      <button id="camBtn" class="btn ghost">Camera</button>
+      <button id="micBtn" class="btn ghost">Mic</button>
+    </div>
+    <div class="group">
+      <button id="annotateBtn" class="btn ghost">Annotate</button>
+      <input id="penColor" class="pen" type="color" value="#ff5c5c" aria-label="Pen colour" />
+      <button id="clearAnno" class="btn tiny ghost">Clear</button>
+    </div>
+    <div class="group reactions" id="reactionButtons">
+      <button class="reaction" data-emoji="&#128077;" title="Thumbs up">&#128077;</button>
+      <button class="reaction" data-emoji="&#127881;" title="Party">&#127881;</button>
+      <button class="reaction" data-emoji="&#128514;" title="Laugh">&#128514;</button>
+      <button class="reaction" data-emoji="&#10084;&#65039;" title="Heart">&#10084;&#65039;</button>
+      <button class="reaction" data-emoji="&#128075;" title="Wave">&#128075;</button>
+      <button class="reaction" data-emoji="&#129300;" title="Thinking">&#129300;</button>
+    </div>
+    <div class="group">
+      <button id="clipSend" class="btn ghost">Send clipboard</button>
+    </div>
+  </footer>
+</div>
+
+<script src="/assets/app.js"></script>
+</body>
+</html>
