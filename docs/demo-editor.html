@@ -1,0 +1,67 @@
+<!--
+  Static mock of the code editor shown in docs/screenshot.png and docs/social.png.
+  It is not part of the app; it exists so the marketing capture is reproducible.
+  Render at 1600x900 (device scale 2) for the hero shot.
+-->
+<!doctype html><html><head><meta charset="utf-8"><title>parser.rs - acme</title>
+<style>
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{background:#0f1117;color:#c9d1d9;font:13px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;overflow:hidden}
+.bar{height:38px;display:flex;align-items:center;gap:8px;padding:0 14px;background:#161a22;border-bottom:1px solid #232936;color:#8d97ab;font-family:ui-sans-serif,system-ui}
+.dot{width:10px;height:10px;border-radius:50%;background:#2a3242}
+.tab{margin-left:16px;padding:6px 14px;background:#0f1117;border:1px solid #232936;border-bottom:none;border-radius:8px 8px 0 0;color:#e8ecf4}
+.path{margin-left:auto;font-size:12px}
+.wrap{display:grid;grid-template-columns:210px 1fr;height:calc(100% - 38px - 24px)}
+.side{background:#12151d;border-right:1px solid #232936;padding:12px 0;color:#7d879b}
+.side div{padding:5px 16px}
+.side .on{background:#1a1f2b;color:#e8ecf4;border-left:2px solid #7c9cff;padding-left:14px}
+.side .gap{margin-top:16px}
+.code{padding:14px 0;overflow:hidden;counter-reset:l}
+.line{display:grid;grid-template-columns:52px 1fr;white-space:pre;height:20.8px}
+.line::before{counter-increment:l;content:counter(l);text-align:right;padding-right:18px;color:#4b5568;font-size:12px}
+.src{grid-column:2;white-space:pre}
+.line.cur{background:#151b28}
+.k{color:#c792ea}.f{color:#82aaff}.s{color:#c3e88d}.c{color:#5c6779}.t{color:#ffcb6b}.n{color:#f78c6c}.p{color:#89ddff}
+.status{height:24px;display:flex;align-items:center;gap:16px;padding:0 14px;background:#12151d;border-top:1px solid #232936;color:#7d879b;font-size:11.5px;font-family:ui-sans-serif,system-ui}
+.status .right{margin-left:auto}
+</style></head><body>
+<div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tab">parser.rs</span><span class="path">src/parser.rs — acme/api</span></div>
+<div class="wrap"><div class="side"><div>src</div><div class="on">parser.rs</div><div>lexer.rs</div><div>ast.rs</div><div>main.rs</div><div class="gap">Cargo.toml</div><div>README.md</div></div>
+<div class="code">
+<div class="line"><span class="src"><span class="c">// Recursive-descent parser for the expression grammar.</span></span></div>
+<div class="line"><span class="src"><span class="k">use</span> crate::ast::{<span class="t">Expr</span>, <span class="t">Op</span>};</span></div>
+<div class="line"><span class="src"><span class="k">use</span> crate::lexer::{<span class="t">Token</span>, <span class="t">TokenKind</span>};</span></div>
+<div class="line"><span class="src"></span></div>
+<div class="line"><span class="src"><span class="k">pub struct</span> <span class="t">Parser</span>&lt;<span class="s">'a</span>&gt; {</span></div>
+<div class="line"><span class="src">    tokens: &amp;<span class="s">'a</span> [<span class="t">Token</span>],</span></div>
+<div class="line"><span class="src">    pos: <span class="t">usize</span>,</span></div>
+<div class="line"><span class="src">}</span></div>
+<div class="line"><span class="src"></span></div>
+<div class="line"><span class="src"><span class="k">impl</span>&lt;<span class="s">'a</span>&gt; <span class="t">Parser</span>&lt;<span class="s">'a</span>&gt; {</span></div>
+<div class="line"><span class="src">    <span class="k">pub fn</span> <span class="f">parse</span>(&amp;<span class="k">mut</span> self) -&gt; <span class="t">Result</span>&lt;<span class="t">Expr</span>, <span class="t">ParseError</span>&gt; {</span></div>
+<div class="line"><span class="src">        <span class="k">let mut</span> lhs = self.<span class="f">primary</span>()?;</span></div>
+<div class="line cur"><span class="src">        <span class="k">while let</span> <span class="t">Some</span>(op) = self.<span class="f">peek_op</span>() {</span></div>
+<div class="line"><span class="src">            self.<span class="f">bump</span>();</span></div>
+<div class="line"><span class="src">            <span class="k">let</span> rhs = self.<span class="f">primary</span>()?;</span></div>
+<div class="line"><span class="src">            lhs = <span class="t">Expr</span>::Binary { lhs: <span class="t">Box</span>::new(lhs), op, rhs: <span class="t">Box</span>::new(rhs) };</span></div>
+<div class="line"><span class="src">        }</span></div>
+<div class="line"><span class="src">        <span class="t">Ok</span>(lhs)</span></div>
+<div class="line"><span class="src">    }</span></div>
+<div class="line"><span class="src"></span></div>
+<div class="line"><span class="src">    <span class="k">fn</span> <span class="f">primary</span>(&amp;<span class="k">mut</span> self) -&gt; <span class="t">Result</span>&lt;<span class="t">Expr</span>, <span class="t">ParseError</span>&gt; {</span></div>
+<div class="line"><span class="src">        <span class="k">match</span> self.<span class="f">next</span>() {</span></div>
+<div class="line"><span class="src">            <span class="t">Token</span>::Number(n) =&gt; <span class="t">Ok</span>(<span class="t">Expr</span>::Number(n)),</span></div>
+<div class="line"><span class="src">            <span class="t">Token</span>::Ident(name) =&gt; <span class="t">Ok</span>(<span class="t">Expr</span>::Var(name)),</span></div>
+<div class="line"><span class="src">            <span class="t">Token</span>::LParen =&gt; {</span></div>
+<div class="line"><span class="src">                <span class="k">let</span> inner = self.<span class="f">parse</span>()?;</span></div>
+<div class="line"><span class="src">                self.<span class="f">expect</span>(<span class="t">Token</span>::RParen)?;</span></div>
+<div class="line"><span class="src">                <span class="t">Ok</span>(inner)</span></div>
+<div class="line"><span class="src">            }</span></div>
+<div class="line"><span class="src">            other =&gt; <span class="t">Err</span>(<span class="t">ParseError</span>::Unexpected(other)),</span></div>
+<div class="line"><span class="src">        }</span></div>
+<div class="line"><span class="src">    }</span></div>
+<div class="line"><span class="src">}</span></div>
+</div></div>
+<div class="status"><span>master</span><span>parser.rs</span><span class="right">Ln 13, Col 9</span><span>Rust</span><span>UTF-8</span></div>
+</body></html>
